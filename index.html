@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ai Real-Time Weather Forecast</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      background-color: #f7f7f7;
+      font-family: 'Roboto', sans-serif;
+    }
+    .neuromorphism {
+      background-color: #f0f0f0;
+      box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1), 
+                  -5px -5px 10px rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px;
+    }
+    .transparent-bg {
+      background-color: rgba(255, 255, 255, 0.9);
+    }
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+      transition: opacity 0.3s ease;
+      max-width: 400px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    #processing-popup {
+      background-color: #fff;
+    }
+    #alert-popup {
+      background-color: #f8d7da;
+      border: 2px solid #f5c6cb;
+    }
+    .popup h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .alert-icon {
+      color: #721c24;
+      font-size: 48px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .progress {
+      height: 20px;
+      margin-top: 10px;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      border-radius: 5px;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .form-control {
+      border-radius: 5px;
+      border-color: #ddd;
+    }
+    .btn-primary {
+      border-radius: 5px;
+      background-color: #4CAF50;
+      border-color: #4CAF50;
+      transition: background-color 0.3s ease;
+    }
+    .btn-primary:hover {
+      background-color: #45a049;
+      border-color: #45a049;
+    }
+    .btn-primary:focus {
+      box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.5);
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      color: #666;
+      transition: color 0.3s ease;
+    }
+    .close-btn:hover {
+      color: #333;
+    }
+    
+    .social-icons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .icon {
+      font-size: 24px;
+      margin: 0 10px;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border-radius: 10px;
+      box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1), 
+                  -5px -5px 10px rgba(255, 255, 255, 0.9);
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .icon:hover {
+      background-color: #e0e0e0;
+      transform: translateY(-2px); /* Move icon slightly up on hover */
+    }
+
+    .icon i {
+      color: #555; /* Icon color */
+    }
+
+    /* Custom icon colors */
+    .facebook-icon {
+      color: #3b5998; /* Facebook blue */
+    }
+
+    .instagram-icon {
+      color: #e4405f; /* Instagram pink */
+    }
+
+    .github-icon {
+      color: #333; /* GitHub black */
+    }
+
+    .telegram-icon {
+      color: #0088cc; /* Telegram blue */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 offset-md-3 neuromorphism">
+        <h2>Real-Time Weather Forecast</h2>
+        <form id="weather-form">
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Enter your location" id="city-input">
+            <button type="submit" class="btn btn-primary">Check Weather</button>
+          </div>
+              
+<div class="social-icons">
+  <a href="https://www.facebook.com/shozon.roy2" class="icon facebook-icon"><i class="fab fa-facebook"></i></a>
+  <a href="https://www.instagram.com/shozon_roy" class="icon instagram-icon"><i class="fab fa-instagram"></i></a>
+  <a href="https://github.com/Shozon-Roy" class="icon github-icon"><i class="fab fa-github"></i></a>
+  <a href="https://t.me/shozonroy2" class="icon telegram-icon"><i class="fab fa-telegram"></i></a>
+</div>
+
+        </form>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  <div id="processing-popup" class="popup transparent-bg">
+    <span class="close-btn">&times;</span>
+    <h3> Searching location...</h3>
+    <div class="progress">
+      <div class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+  </div>
+
+  <div id="alert-popup" class="popup transparent-bg">
+    <span class="close-btn">&times;</span>
+    <div class="alert-icon"><i class="fas fa-exclamation-triangle"></i></div>
+    <h3>idk, just look outside</h3>
+  </div>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+  <script>
+    document.getElementById('weather-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      showProcessingPopup();
+      let progress = 0;
+      let progressBar = document.querySelector('.progress-bar');
+      let interval = setInterval(function() {
+        progress += 10;
+        progressBar.style.width = progress + '%';
+        progressBar.setAttribute('aria-valuenow', progress);
+         if (progress >= 30) {
+          document.getElementById('processing-popup').querySelector('h3').innerText = ' Analyzing the clouds...';
+        }
+
+        if (progress >= 60) {
+          document.getElementById('processing-popup').querySelector('h3').innerText = ' Looking outside your window... ';
+        }
+        if (progress >= 90) {
+          document.getElementById('processing-popup').querySelector('h3').innerText = ' Gathering last information... ';
+        }
+       
+        if (progress >= 100) {
+          clearInterval(interval);
+          setTimeout(function() {
+            let city = document.getElementById('city-input').value;
+            console.log("Weather data for city:", city);
+            hideProcessingPopup();
+            showWeatherAlert();
+          }, 500);
+        }
+      }, 500);  
+    });
+
+    function showProcessingPopup() {
+      document.getElementById('processing-popup').style.display = 'block';
+    }
+
+    function hideProcessingPopup() {
+      document.getElementById('processing-popup').style.display = 'none';
+    }
+
+    function showWeatherAlert() {
+      document.getElementById('alert-popup').style.display = 'block';
+    }
+
+    document.querySelectorAll('.close-btn').forEach(function(button) {
+      button.addEventListener('click', function() {
+        this.parentNode.style.display = 'none';
+      });
+    });
+  </script>
+</body>
+</html>
